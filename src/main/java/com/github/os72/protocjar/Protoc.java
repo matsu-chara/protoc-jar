@@ -62,6 +62,10 @@ public class Protoc
 	}
 
 	public static int runProtoc(String cmd, List<String> argList) throws IOException, InterruptedException {
+		return runProtoc(cmd, argList, System.out, System.err);
+	}
+
+	public static int runProtoc(String cmd, List<String> argList, OutputStream out, OutputStream errOut) throws IOException, InterruptedException {
 		ProtocVersion protocVersion = ProtocVersion.PROTOC_VERSION;
 		String javaShadedOutDir = null;
 		
@@ -86,8 +90,8 @@ public class Protoc
 		log("executing: " + protocCmd);
 		
 		Process protoc = pb.start();
-		new Thread(new StreamCopier(protoc.getInputStream(), System.out)).start();
-		new Thread(new StreamCopier(protoc.getErrorStream(), System.err)).start();
+		new Thread(new StreamCopier(protoc.getInputStream(), out)).start();
+		new Thread(new StreamCopier(protoc.getErrorStream(), errOut)).start();
 		int exitCode = protoc.waitFor();
 		
 		if (javaShadedOutDir != null) {
